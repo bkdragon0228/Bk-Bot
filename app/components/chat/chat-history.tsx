@@ -84,6 +84,9 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
                         <div className="flex max-w-[80%] justify-start">
                             <div className="rounded-lg p-3 bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                                 {renderMessage(message.content)}
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
+                                    {new Date(message.timestamp).toLocaleString()}
+                                </div>
                             </div>
                         </div>
                     </div>
