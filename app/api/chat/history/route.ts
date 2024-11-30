@@ -1,10 +1,14 @@
 import { prisma } from "@/app/lib/prisma";
-import { getVisitorId } from "@/app/lib/visitor";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        const visitorId = await getVisitorId();
+        const { searchParams } = new URL(request.url);
+        const visitorId = searchParams.get("visitorId");
+
+        if (!visitorId) {
+            return NextResponse.json({ error: "Visitor ID is required" }, { status: 400 });
+        }
 
         const chats = await prisma.chat.findMany({
             where: {

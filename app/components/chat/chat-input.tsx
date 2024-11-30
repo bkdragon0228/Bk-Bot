@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Message } from "@/app/lib/types";
+import { getVisitorId } from "@/app/lib/visitor";
 
 interface ChatInputProps {
     onNewMessage: (message: Message) => void;
@@ -29,10 +30,11 @@ export default function ChatInput({ onNewMessage, onStreamingMessage }: ChatInpu
         let streamingContent = "";
 
         try {
+            const visitorId = await getVisitorId();
             const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: message.trim() }),
+                body: JSON.stringify({ message: message.trim(), visitorId }),
             });
 
             if (!response.ok) throw new Error("Failed to send message");

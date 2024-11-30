@@ -1,7 +1,6 @@
 import { OpenAI } from "openai";
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
-import { getVisitorId } from "@/app/lib/visitor";
 
 // 이력서 내용을 상수로 정의
 const RESUME_CONTENT = `
@@ -120,14 +119,19 @@ OAuth 기반으로 SSO를 구현했습니다. 포털에 로그인된 사용자�
 
 `;
 
+interface ChatRequest {
+    message: string;
+    visitorId: string;
+}
+
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(req: Request) {
     try {
-        const { message } = await req.json();
-        const visitorId = await getVisitorId();
+        const body: ChatRequest = await req.json();
+        const { message, visitorId } = body;
 
         // 오늘 자정을 기준으로 시작 시간과 끝 시간 설정
         const today = new Date();

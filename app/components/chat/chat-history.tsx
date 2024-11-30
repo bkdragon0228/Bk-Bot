@@ -5,6 +5,7 @@ import { Message } from "@/app/lib/types";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import Image from "next/image";
 import ME from "@/public/image/me.jpeg";
+import { getVisitorId } from "@/app/lib/visitor";
 
 interface ChatHistoryProps {
     messages: Message[];
@@ -31,7 +32,8 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
     const handleLoadHistory = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch("/api/chat/history");
+            const visitorId = await getVisitorId();
+            const response = await fetch(`/api/chat/history?visitorId=${visitorId}`);
             if (!response.ok) throw new Error("Failed to fetch history");
 
             const data = await response.json();
