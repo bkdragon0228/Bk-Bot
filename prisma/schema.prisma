@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Visitor {
+  id            String    @id
+  firstVisitAt  DateTime  @default(now())
+  lastVisitAt   DateTime  @updatedAt
+  chats         Chat[]
+}
+
+model Chat {
+  id        String   @id @default(cuid())
+  visitorId String
+  role      String   // "user" | "assistant"
+  content   String
+  timestamp DateTime @default(now())
+  visitor   Visitor  @relation(fields: [visitorId], references: [id])
+
+  @@index([visitorId])
+} 
