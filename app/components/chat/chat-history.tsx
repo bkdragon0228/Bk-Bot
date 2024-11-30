@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Message } from "@/app/lib/types";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import Image from "next/image";
@@ -9,10 +9,12 @@ import ME from "@/public/image/me.jpeg";
 interface ChatHistoryProps {
     messages: Message[];
     streamingMessage?: string;
+    onLoadHistory: (messages: Message[]) => void;
 }
 
-export default function ChatHistory({ messages, streamingMessage }: ChatHistoryProps) {
+export default function ChatHistory({ messages, streamingMessage, onLoadHistory }: ChatHistoryProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -29,53 +31,91 @@ export default function ChatHistory({ messages, streamingMessage }: ChatHistoryP
             />
         );
 
+    const handleLoadHistory = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch("/api/chat/history");
+            if (!response.ok) throw new Error("Failed to fetch history");
+
+            const data = await response.json();
+            onLoadHistory(data.chats);
+        } catch (error) {
+            console.error("Error loading history:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
-        <div className="space-y-6">
-            {messages.map((message) => (
-                <div
-                    key={message.id}
-                    className={`flex items-start gap-3 ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
-                >
-                    <div className="flex-shrink-0">
-                        {message.role === "user" ? (
-                            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                                U
+        <div className="relative">
+            {messages.length === 0 && (
+                <div className="absolute top-0 left-0 right-0 flex justify-center">
+                    <button
+                        onClick={handleLoadHistory}
+                        disabled={isLoading}
+                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg shadow transition-colors disabled:opacity-50"
+                    >
+                        {isLoading ? "불러오는 중..." : "이전 대화 불러오기"}
+                    </button>
+                </div>
+            )}
+            <div className="space-y-6 mt-16">
+                {messages.map((message) => (
+                    <div
+                        key={message.id}
+                        className={`flex items-start gap-3 ${
+                            message.role === "user" ? "flex-row-reverse" : "flex-row"
+                        }`}
+                    >
+                        <div className="flex-shrink-0">
+                            {message.role === "user" ? (
+                                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                                    U
+                                </div>
+                            ) : (
+                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                    <Image
+                                        src={ME}
+                                        alt="AI"
+                                        width={32}
+                                        height={32}
+                                        className="rounded-full object-cover"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                        <div
+                            className={`flex max-w-[80%] ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                        >
+                            <div
+                                className={`rounded-lg p-3 ${
+                                    message.role === "user" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-900"
+                                }`}
+                            >
+                                {renderMessage(message.content, message.role === "user")}
                             </div>
-                        ) : (
+                        </div>
+                    </div>
+                ))}
+                {streamingMessage && (
+                    <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
                             <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                                 <Image src={ME} alt="AI" width={32} height={32} className="rounded-full object-cover" />
                             </div>
-                        )}
-                    </div>
-                    <div className={`flex max-w-[80%] ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                        <div
-                            className={`rounded-lg p-3 ${
-                                message.role === "user" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-900"
-                            }`}
-                        >
-                            {renderMessage(message.content, message.role === "user")}
+                        </div>
+                        <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 text-gray-900">
+                            <MarkdownPreview
+                                source={streamingMessage}
+                                className="!bg-transparent !text-gray-900"
+                                style={{ background: "transparent" }}
+                            />
+                            <span className="animate-pulse">▊</span>
                         </div>
                     </div>
-                </div>
-            ))}
-            {streamingMessage && (
-                <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <Image src="/avatar.png" alt="AI" width={32} height={32} className="rounded-full" />
-                        </div>
-                    </div>
-                    <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 text-gray-900">
-                        <MarkdownPreview
-                            source={streamingMessage}
-                            className="!bg-transparent !text-gray-900"
-                            style={{ background: "transparent" }}
-                        />
-                        <span className="animate-pulse">▊</span>
-                    </div>
-                </div>
-            )}
-            <div ref={messagesEndRef} />
+                )}
+                <div ref={messagesEndRef} />
+            </div>
         </div>
     );
 }

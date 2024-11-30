@@ -15,6 +15,10 @@ export default function Home() {
         setMessages((prev) => [...prev, message]);
     };
 
+    const handleLoadHistory = (historicalMessages: Message[]) => {
+        setMessages(historicalMessages);
+    };
+
     return (
         <main className="flex min-h-screen flex-col md:flex-row bg-gray-50">
             {/* 채팅 섹션 */}
@@ -22,7 +26,11 @@ export default function Home() {
                 <h2 className="text-xl font-semibold mb-4">면접 시뮬레이션</h2>
                 <div className="flex-1 overflow-y-auto bg-white rounded-lg shadow-sm p-4">
                     <Suspense fallback={<LoadingSpinner />}>
-                        <ChatHistory messages={messages} streamingMessage={streamingMessage} />
+                        <ChatHistory
+                            messages={messages}
+                            streamingMessage={streamingMessage}
+                            onLoadHistory={handleLoadHistory}
+                        />
                     </Suspense>
                 </div>
                 <ChatInput onNewMessage={handleNewMessage} onStreamingMessage={setStreamingMessage} />
