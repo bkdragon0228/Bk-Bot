@@ -23,7 +23,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
     const renderMessage = (content: string) => (
         <MarkdownPreview
             source={content}
-            className="!bg-transparent !text-gray-900 dark:!text-gray-100"
+            className="!bg-transparent !text-gray-900 dark:!text-gray-100 [&_pre]:!bg-gray-100 dark:[&_pre]:!bg-gray-800 [&_code]:!text-gray-800 dark:[&_code]:!text-gray-200"
             style={{ background: "transparent" }}
         />
     );
@@ -98,7 +98,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
                         <div className="max-w-[80%] rounded-lg p-3 bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                             <MarkdownPreview
                                 source={streamingMessage}
-                                className="!bg-transparent !text-gray-900 dark:!text-gray-100"
+                                className="!bg-transparent !text-gray-900 dark:!text-gray-100 [&_pre]:!bg-gray-100 dark:[&_pre]:!bg-gray-800 [&_code]:!text-gray-800 dark:[&_code]:!text-gray-200"
                                 style={{ background: "transparent" }}
                             />
                             <span className="animate-pulse">▊</span>
