@@ -15,6 +15,22 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="ko" suppressHydrationWarning>
+            <head>
+                {/* 초기 테마 설정을 위한 인라인 스크립트 추가 */}
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `
+                            try {
+                                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                                    document.documentElement.classList.add('dark')
+                                } else {
+                                    document.documentElement.classList.remove('dark')
+                                }
+                            } catch (_) {}
+                        `,
+                    }}
+                />
+            </head>
             <body
                 className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col w-screen h-screen`}
             >
