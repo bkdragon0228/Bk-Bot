@@ -18,7 +18,6 @@ export default function ChatInput({ onNewMessage, onStreamingMessage }: ChatInpu
 
         setIsLoading(true);
 
-        // 사용자 메시지 추가
         const userMessage: Message = {
             id: Date.now().toString(),
             role: "user",
@@ -36,28 +35,14 @@ export default function ChatInput({ onNewMessage, onStreamingMessage }: ChatInpu
                 body: JSON.stringify({ message: message.trim() }),
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                // 시스템 메시지로 에러 표시
-                const errorMessage: Message = {
-                    id: Date.now().toString(),
-                    role: "assistant",
-                    content: `⚠️ ${errorData.error || "메시지 전송에 실패했습니다."}`,
-                    timestamp: Date.now(),
-                };
-                onNewMessage(errorMessage);
-                setMessage("");
-                return;
-            }
+            if (!response.ok) throw new Error("Failed to send message");
 
             const reader = response.body?.getReader();
             if (!reader) throw new Error("No reader available");
 
-            // 스트리밍 응답 처리
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) {
-                    // 스트리밍이 완료되면 최종 메시지 추가
                     const finalMessage: Message = {
                         id: Date.now().toString(),
                         role: "assistant",
@@ -104,13 +89,13 @@ export default function ChatInput({ onNewMessage, onStreamingMessage }: ChatInpu
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="면접 질문을 입력하세요..."
-                    className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-700"
                     disabled={isLoading}
                 />
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
                 >
                     {isLoading ? "전송 중..." : "전송"}
                 </button>

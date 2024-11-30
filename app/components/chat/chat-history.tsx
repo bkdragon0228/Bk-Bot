@@ -20,16 +20,13 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, streamingMessage]);
 
-    const renderMessage = (content: string, isUser: boolean) =>
-        isUser ? (
-            content
-        ) : (
-            <MarkdownPreview
-                source={content}
-                className="!bg-transparent !text-gray-900"
-                style={{ background: "transparent" }}
-            />
-        );
+    const renderMessage = (content: string) => (
+        <MarkdownPreview
+            source={content}
+            className="!bg-transparent !text-gray-900 dark:!text-gray-100"
+            style={{ background: "transparent" }}
+        />
+    );
 
     const handleLoadHistory = async () => {
         setIsLoading(true);
@@ -53,7 +50,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
                     <button
                         onClick={handleLoadHistory}
                         disabled={isLoading}
-                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg shadow transition-colors disabled:opacity-50"
+                        className="px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg shadow transition-colors disabled:opacity-50"
                     >
                         {isLoading ? "불러오는 중..." : "이전 대화 불러오기"}
                     </button>
@@ -73,7 +70,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
                                     U
                                 </div>
                             ) : (
-                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
                                     <Image
                                         src={ME}
                                         alt="AI"
@@ -84,15 +81,9 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
                                 </div>
                             )}
                         </div>
-                        <div
-                            className={`flex max-w-[80%] ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                        >
-                            <div
-                                className={`rounded-lg p-3 ${
-                                    message.role === "user" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-900"
-                                }`}
-                            >
-                                {renderMessage(message.content, message.role === "user")}
+                        <div className="flex max-w-[80%] justify-start">
+                            <div className="rounded-lg p-3 bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+                                {renderMessage(message.content)}
                             </div>
                         </div>
                     </div>
@@ -100,14 +91,14 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
                 {streamingMessage && (
                     <div className="flex items-start gap-3">
                         <div className="flex-shrink-0">
-                            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
                                 <Image src={ME} alt="AI" width={32} height={32} className="rounded-full object-cover" />
                             </div>
                         </div>
-                        <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 text-gray-900">
+                        <div className="max-w-[80%] rounded-lg p-3 bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                             <MarkdownPreview
                                 source={streamingMessage}
-                                className="!bg-transparent !text-gray-900"
+                                className="!bg-transparent !text-gray-900 dark:!text-gray-100"
                                 style={{ background: "transparent" }}
                             />
                             <span className="animate-pulse">▊</span>
