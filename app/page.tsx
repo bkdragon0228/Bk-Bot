@@ -20,10 +20,10 @@ export default function Home() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
+        <main className="flex flex-1 basis-0 flex-col bg-gray-50 dark:bg-gray-900">
             {/* 채팅 섹션 */}
-            <div className="w-full md:w-1/2 p-4 flex flex-col h-screen mx-auto">
-                <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+            <div className="w-full md:w-1/2 p-4 flex flex-col flex-1 basis-0 mx-auto">
+                <div className="flex-1 basis-0 overflow-y-auto bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
                     <Suspense fallback={<LoadingSpinner />}>
                         <ChatHistory
                             messages={messages}
