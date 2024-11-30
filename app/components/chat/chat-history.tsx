@@ -14,6 +14,7 @@ interface ChatHistoryProps {
 }
 
 export default function ChatHistory({ messages, streamingMessage, onLoadHistory }: ChatHistoryProps) {
+    const [exists, setExists] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -45,10 +46,22 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
         }
     };
 
+    const handleCheckExists = async () => {
+        const visitorId = await getVisitorId();
+        const response = await fetch(`/api/visitor/check?visitorId=${visitorId}`);
+        const data = await response.json();
+        setExists(data.exists);
+    };
+
+    useEffect(() => {
+        handleCheckExists();
+    }, []);
+
     return (
         <div className="relative">
-            {messages.length === 0 && (
-                <div className="absolute top-0 left-0 right-0 flex justify-center">
+            {messages.length === 0 && exists && (
+                <div className="absolute top-0 left-0 right-0 flex flex-col items-center justify-center gap-2">
+                    <span className="text-gray-500 dark:text-gray-400">또 오셨군요? 이전 대화를 불러올 수 있어요!</span>
                     <button
                         onClick={handleLoadHistory}
                         disabled={isLoading}
