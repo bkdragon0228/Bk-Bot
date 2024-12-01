@@ -11,6 +11,7 @@ model Visitor {
   id            String    @id
   firstVisitAt  DateTime  @default(now())
   lastVisitAt   DateTime  @updatedAt
+  name          String?
   chats         Chat[]
 }
 

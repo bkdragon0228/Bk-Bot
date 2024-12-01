@@ -35,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col w-screen h-screen`}
             >
                 <ThemeProvider>
-                    <VisitorTracker />
+                    {/* <VisitorTracker /> */}
                     <AppHeader />
                     {children}
                 </ThemeProvider>

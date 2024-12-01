@@ -10,20 +10,22 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: "Visitor ID is required" }, { status: 400 });
         }
 
-        const existingVisitor = await prisma.visitor.findUnique({
+        // Check if there are chat records for the given visitorId
+        const existingChat = await prisma.chat.findFirst({
             where: {
-                id: visitorId,
+                visitorId,
             },
             select: {
                 id: true,
+                timestamp: true,
             },
         });
 
         return NextResponse.json({
-            exists: !!existingVisitor,
+            exists: !!existingChat,
         });
     } catch (error) {
-        console.error("Error checking visitor:", error);
-        return NextResponse.json({ error: "Failed to check visitor" }, { status: 500 });
+        console.error("Error checking chat records:", error);
+        return NextResponse.json({ error: "Failed to check chat records" }, { status: 500 });
     }
 }
