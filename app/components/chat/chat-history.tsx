@@ -77,6 +77,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
             const response = await fetch(`/api/visitor/check?visitorId=${visitorId}`);
             const data = await response.json();
             setCheckVisitor(data.exists);
+            setName(data.name);
 
             // 처음 방문한 경우
             if (!data.exists) {
@@ -110,7 +111,9 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     };
 
     const firstMessage = useTypewriterEffect({
-        text: `안녕하세요! 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.`,
+        text: name
+            ? `안녕하세요! ${name}에 지원한 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.`
+            : `안녕하세요! 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.`,
         delay: 50,
         startTyping: checkVisitor && isLoaded && !checkChat,
     });
@@ -183,11 +186,9 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
             {/* 이전에 방문한 경우 + 채팅 기록이 없을 떄*/}
             {checkVisitor && isLoaded && !checkChat && (
                 <div className="flex flex-col justify-center gap-2">
-                    {messages.length === 0 && (
-                        <span className="self-center text-gray-500 dark:text-gray-400">
-                            김범규님이 면접에 참여하였습니다. 지금 면접을 시작해보세요!
-                        </span>
-                    )}
+                    <span className="self-center text-gray-500 dark:text-gray-400">
+                        김범규님이 면접에 참여하였습니다. 지금 면접을 시작해보세요!
+                    </span>
                     <div
                         // key={message.id}
                         className={`flex items-start gap-3 flex-row`}
@@ -241,7 +242,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                         <div className="flex-shrink-0">
                             {message.role === "user" ? (
                                 <div className="flex items-center justify-center w-8 h-8 text-white bg-blue-500 rounded-full">
-                                    U
+                                    {name.charAt(0) || "U"}
                                 </div>
                             ) : (
                                 <div className="flex items-center justify-center w-8 h-8 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-700">

@@ -16,11 +16,13 @@ export async function GET(request: Request) {
             },
             select: {
                 id: true,
+                name: true,
             },
         });
 
         return NextResponse.json({
             exists: !!existingVisitor,
+            name: existingVisitor?.name || "",
         });
     } catch (error) {
         console.error("Error checking visitor:", error);
