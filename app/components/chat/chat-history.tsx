@@ -6,6 +6,7 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 import Image from "next/image";
 import ME from "@/public/image/me.jpeg";
 import { getVisitorId } from "@/app/lib/visitor";
+import { useTypewriterEffect } from "@/app/hooks/useTypewriterEffect";
 
 interface ChatHistoryProps {
     messages: Message[];
@@ -107,6 +108,12 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
         }
     };
 
+    const firstMessage = useTypewriterEffect({
+        text: "안녕하세요! 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.",
+        delay: 50,
+        startTyping: checkVisitor && isLoaded && !checkChat,
+    });
+
     useEffect(() => {
         handleCheckVisitor();
     }, []);
@@ -191,12 +198,12 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
                         </div>
                         <div className="flex max-w-[80%] justify-start">
                             <div className="p-3 text-gray-900 bg-gray-200 rounded-lg dark:bg-gray-900 dark:text-gray-100">
-                                {renderMessage("안녕하세요 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.")}
+                                {renderMessage(firstMessage?.displayText || "")}
                             </div>
                         </div>
                     </div>
 
-                    {messages.length === 0 && (
+                    {messages.length === 0 && !firstMessage.isTyping && (
                         <div className={`flex justify-end items-start gap-3 flex-row`}>
                             <div className="flex flex-col gap-2">
                                 <button
