@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { Message } from "@/app/lib/types";
 import { getVisitorId } from "@/app/lib/visitor";
 
@@ -9,20 +9,23 @@ interface ChatInputProps {
     onStreamingMessage: (message: string | undefined) => void;
 }
 
-export default function ChatInput({ onNewMessage, onStreamingMessage }: ChatInputProps) {
+export interface ChatInputHandle {
+    sendMessage: (text: string) => Promise<void>;
+}
+
+const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onNewMessage, onStreamingMessage }, ref) => {
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        if (!message.trim() || isLoading) return;
-
+    // 메시지 전송 로직을 분리
+    const sendMessage = async (text: string) => {
+        if (!text.trim() || isLoading) return;
         setIsLoading(true);
 
         const userMessage: Message = {
             id: Date.now().toString(),
             role: "user",
-            content: message.trim(),
+            content: text.trim(),
             timestamp: Date.now(),
         };
         onNewMessage(userMessage);
@@ -34,7 +37,7 @@ export default function ChatInput({ onNewMessage, onStreamingMessage }: ChatInpu
             const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: message.trim(), visitorId }),
+                body: JSON.stringify({ message: text.trim(), visitorId }),
             });
 
             if (!response.ok) throw new Error("Failed to send message");
@@ -81,7 +84,18 @@ export default function ChatInput({ onNewMessage, onStreamingMessage }: ChatInpu
         } finally {
             setIsLoading(false);
         }
-    }
+    };
+
+    // ref를 통해 노출할 메서드 정의
+    useImperativeHandle(ref, () => ({
+        sendMessage,
+    }));
+
+    // 폼 제출 핸들러
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await sendMessage(message);
+    };
 
     return (
         <form onSubmit={handleSubmit} className="mt-4">
@@ -97,11 +111,15 @@ export default function ChatInput({ onNewMessage, onStreamingMessage }: ChatInpu
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
+                    className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
                 >
                     {isLoading ? "전송 중..." : "전송"}
                 </button>
             </div>
         </form>
     );
-}
+});
+
+ChatInput.displayName = "ChatInput";
+
+export default ChatInput;

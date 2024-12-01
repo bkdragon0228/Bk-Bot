@@ -12,12 +12,13 @@ interface ChatHistoryProps {
     messages: Message[];
     streamingMessage?: string;
     onLoadHistory: (messages: Message[]) => void;
+    onSendMessage: (message: string) => void;
 }
 
 /** init: 처음 방문한 경우에만, loading: 처리 중, loaded: 처리 완료, error: 처리 실패 */
 type ChatHistoryState = "init" | "loading" | "loaded" | "error";
 
-export default function ChatHistory({ messages, streamingMessage, onLoadHistory }: ChatHistoryProps) {
+export default function ChatHistory({ messages, streamingMessage, onLoadHistory, onSendMessage }: ChatHistoryProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [name, setName] = useState<string>("");
 
@@ -109,7 +110,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
     };
 
     const firstMessage = useTypewriterEffect({
-        text: "안녕하세요! 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.",
+        text: `안녕하세요! 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.`,
         delay: 50,
         startTyping: checkVisitor && isLoaded && !checkChat,
     });
@@ -207,19 +208,19 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
                         <div className={`flex justify-end items-start gap-3 flex-row`}>
                             <div className="flex flex-col gap-2">
                                 <button
-                                    // onClick={() => handleNewMessage({ id: '1', role: 'user', content: '자기소개 부탁드립니다.', timestamp: new Date().toISOString() })}
+                                    onClick={() => onSendMessage("자기소개 부탁드립니다.")}
                                     className="px-4 py-2 text-left text-gray-900 transition-colors bg-gray-200 rounded-lg shadow hover:bg-gray-200 dark:hover:bg-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                 >
                                     자기소개 부탁드립니다.
                                 </button>
                                 <button
-                                    // onClick={() => handleNewMessage({ id: '1', role: 'user', content: '자기소개 부탁드립니다.', timestamp: new Date().toISOString() })}
+                                    onClick={() => onSendMessage("최근 프로젝트에 대해 설명해주세요.")}
                                     className="px-4 py-2 text-left text-gray-900 transition-colors bg-gray-200 rounded-lg shadow hover:bg-gray-200 dark:hover:bg-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                 >
                                     최근 프로젝트에 대해 설명해주세요.
                                 </button>
                                 <button
-                                    // onClick={() => handleNewMessage({ id: '1', role: 'user', content: '자기소개 부탁드립니다.', timestamp: new Date().toISOString() })}
+                                    onClick={() => onSendMessage("가장 자신 있는 기술 스택은 무엇인가요?")}
                                     className="px-4 py-2 text-left text-gray-900 transition-colors bg-gray-200 rounded-lg shadow hover:bg-gray-200 dark:hover:bg-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                 >
                                     가장 자신 있는 기술 스택은 무엇인가요?
