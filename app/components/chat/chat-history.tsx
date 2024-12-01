@@ -13,6 +13,7 @@ interface ChatHistoryProps {
     onLoadHistory: (messages: Message[]) => void;
 }
 
+/** init: 처음 방문한 경우에만, loading: 처리 중, loaded: 처리 완료, error: 처리 실패 */
 type ChatHistoryState = "init" | "loading" | "loaded" | "error";
 
 export default function ChatHistory({ messages, streamingMessage, onLoadHistory }: ChatHistoryProps) {
@@ -68,7 +69,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
     };
 
     const handleCheckVisitor = async () => {
-        setState("init");
+        setState("loading");
         try {
             const visitorId = await getVisitorId();
             const response = await fetch(`/api/visitor/check?visitorId=${visitorId}`);
@@ -93,6 +94,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
     };
 
     const handleCheckChat = async () => {
+        setState("loading");
         try {
             const visitorId = await getVisitorId();
             const response = await fetch(`/api/chat/check?visitorId=${visitorId}`);
@@ -100,6 +102,8 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory 
             setCheckChat(data.exists);
         } catch (error) {
             console.error("Error checking chat records:", error);
+        } finally {
+            setState("loaded");
         }
     };
 
