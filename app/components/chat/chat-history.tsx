@@ -127,8 +127,8 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
             {state === null && <>초기화 중입니다.</>}
             {/* 처음 방문한 경우 */}
             {state === "init" && !checkVisitor && (
-                <div className="fixed top-0 left-0 flex flex-col items-center justify-center w-screen h-screen gap-2 bg-black/50">
-                    <div className="w-[500px] h-[500px] bg-white rounded-lg dark:bg-gray-800 flex flex-col">
+                <div className="fixed top-0 left-0 flex flex-col items-center justify-center w-screen h-screen gap-2 bg-transparent">
+                    <div className="w-[500px] h-[500px] bg-white rounded-lg dark:bg-gray-800 flex flex-col border border-gray-200 dark:border-gray-700">
                         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                 처음 방문하셨군요! 회사명을 입력해주세요!

@@ -3,6 +3,7 @@ CREATE TABLE "Visitor" (
     "id" TEXT NOT NULL,
     "firstVisitAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "lastVisitAt" TIMESTAMP(3) NOT NULL,
+    "name" TEXT,
 
     CONSTRAINT "Visitor_pkey" PRIMARY KEY ("id")
 );

@@ -3,12 +3,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/providers/theme-provider";
 import AppHeader from "./components/app-header";
-import { VisitorTracker } from "./components/visitor-tracker";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "면접 시뮬레이터",
+    title: "BK Bot",
     description: "AI 기반 면접 시뮬레이터",
 };
 
