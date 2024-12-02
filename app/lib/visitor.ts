@@ -1,7 +1,15 @@
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
+interface FingerprintResult {
+    visitorId: string;
+}
+
+interface FingerprintAgent {
+    get: () => Promise<FingerprintResult>;
+}
+
 export async function getVisitorId(): Promise<string> {
-    let fpPromise: Promise<any> | null = null;
+    let fpPromise: Promise<FingerprintAgent> | null = null;
 
     if (!fpPromise) {
         fpPromise = FingerprintJS.load();

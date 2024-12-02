@@ -1,5 +1,4 @@
 "use client";
-import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 import { useEffect } from "react";
 import { getVisitorId } from "../lib/visitor";

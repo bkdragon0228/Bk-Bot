@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Message } from "@/app/lib/types";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import Image from "next/image";
@@ -70,7 +70,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
         }
     };
 
-    const handleCheckVisitor = async () => {
+    const handleCheckVisitor = useCallback(async () => {
         setState("loading");
         try {
             const visitorId = await getVisitorId();
@@ -79,22 +79,17 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
             setCheckVisitor(data.exists);
             setName(data.name);
 
-            // 처음 방문한 경우
             if (!data.exists) {
                 setState("init");
-
-                // 채팅 기록은 없을 것.
                 setCheckChat(false);
             } else {
-                // 이전에 방문한 경우
                 setState("loaded");
-                // 채팅 기록 존재 여부 확인
                 handleCheckChat();
             }
         } catch (error) {
             console.error("Error checking visitor existence:", error);
         }
-    };
+    }, []);
 
     const handleCheckChat = async () => {
         setState("loading");
@@ -120,7 +115,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
 
     useEffect(() => {
         handleCheckVisitor();
-    }, []);
+    }, [handleCheckVisitor]);
 
     return (
         <div className="relative">
