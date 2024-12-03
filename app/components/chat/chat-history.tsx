@@ -36,7 +36,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     const renderMessage = (content: string) => (
         <MarkdownPreview
             source={content}
-            className="!bg-transparent !text-gray-900 dark:!text-gray-100 [&_pre]:!bg-gray-100 dark:[&_pre]:!bg-gray-800 [&_code]:!text-gray-800 dark:[&_code]:!text-gray-200"
+            className="!bg-transparent !text-gray-900 dark:!text-gray-100 [&_pre]:!bg-gray-100 dark:[&_pre]:!bg-gray-800 [&_code]:!text-gray-800 dark:[&_code]:!text-gray-200 [&_p]:text-sm"
             style={{ background: "transparent" }}
         />
     );
@@ -125,7 +125,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                 <div className="fixed top-0 left-0 flex flex-col items-center justify-center w-screen h-screen gap-2 bg-transparent">
                     <div className="w-[500px] h-[500px] bg-white rounded-lg dark:bg-gray-800 flex flex-col border border-gray-200 dark:border-gray-700">
                         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                 처음 방문하셨군요! 회사명을 입력해주세요!
                             </h2>
                         </div>
@@ -136,13 +136,13 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="회사명을 입력해주세요."
-                                className="w-full p-2 text-gray-900 bg-gray-100 border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                className="w-full p-2 text-sm text-gray-900 bg-gray-100 border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                             />
                             <div className="flex flex-col gap-1 mt-4">
-                                <span className="block text-gray-500 text-pretty dark:text-gray-400">
+                                <span className="block text-sm text-gray-500 text-pretty dark:text-gray-400">
                                     입력하신 내용을 대화에 포함시킵니다.
                                 </span>
-                                <span className="text-gray-500 text-pretty dark:text-gray-400">
+                                <span className="text-sm text-gray-500 text-pretty dark:text-gray-400">
                                     원치 않으시면 건너뛰기를 눌러주세요.
                                 </span>
                             </div>
@@ -150,13 +150,13 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                         <div className="flex flex-row-reverse gap-2 p-4 mt-auto border-t border-gray-200 dark:border-gray-700">
                             <button
                                 onClick={() => name && handleCreateVisitor(name)}
-                                className="w-full p-2 text-gray-900 bg-gray-100 border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                className="w-full p-2 text-sm text-gray-900 bg-gray-100 border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                             >
                                 시작하기
                             </button>
                             <button
                                 onClick={() => handleCreateVisitor("")}
-                                className="w-full p-2 text-gray-900 bg-gray-100 border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                className="w-full p-2 text-sm text-gray-900 bg-gray-100 border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                             >
                                 건너뛰기
                             </button>
@@ -167,11 +167,13 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
             {/* 이전에 방문한 경우 + 채팅 기록이 있을 때 */}
             {messages.length === 0 && isLoaded && checkVisitor && checkChat && (
                 <div className="absolute top-0 left-0 right-0 flex flex-col items-center justify-center gap-2">
-                    <span className="text-gray-500 dark:text-gray-400">또 오셨군요? 이전 대화를 불러올 수 있어요!</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                        또 오셨군요? 이전 대화를 불러올 수 있어요!
+                    </span>
                     <button
                         onClick={handleLoadHistory}
                         disabled={isLoading}
-                        className="px-4 py-2 text-gray-700 transition-colors bg-gray-100 rounded-lg shadow dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 disabled:opacity-50"
+                        className="px-4 py-2 text-sm text-gray-700 transition-colors bg-gray-100 rounded-lg shadow dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 disabled:opacity-50"
                     >
                         {isLoading ? "불러오는 중..." : "이전 대화 불러오기"}
                     </button>
@@ -181,20 +183,17 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
             {/* 이전에 방문한 경우 + 채팅 기록이 없을 떄*/}
             {checkVisitor && isLoaded && !checkChat && (
                 <div className="flex flex-col justify-center gap-2">
-                    <span className="self-center text-gray-500 dark:text-gray-400">
+                    <span className="self-center text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
                         김범규님이 면접에 참여하였습니다. 지금 면접을 시작해보세요!
                     </span>
-                    <div
-                        // key={message.id}
-                        className={`flex items-start gap-3 flex-row`}
-                    >
+                    <div className="flex flex-col items-start gap-2 sm:flex-row">
                         <div className="flex-shrink-0">
                             <div className="flex items-center justify-center w-8 h-8 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-700">
                                 <Image src={ME} alt="AI" width={32} height={32} className="object-cover rounded-full" />
                             </div>
                         </div>
-                        <div className="flex max-w-[80%] justify-start">
-                            <div className="p-3 text-gray-900 bg-gray-200 rounded-lg dark:bg-gray-900 dark:text-gray-100">
+                        <div className="flex max-w-[85%] sm:max-w-[80%] justify-start ml-6 sm:ml-0">
+                            <div className="p-3 text-sm text-gray-900 bg-gray-200 rounded-lg dark:bg-gray-900 dark:text-gray-100">
                                 {renderMessage(firstMessage?.displayText || "")}
                             </div>
                         </div>
@@ -230,13 +229,13 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                 {messages.map((message) => (
                     <div
                         key={message.id}
-                        className={`flex items-start gap-3 ${
-                            message.role === "user" ? "flex-row-reverse" : "flex-row"
-                        }`}
+                        className={`flex flex-col sm:flex-row ${
+                            message.role === "user" ? "items-end sm:items-start" : "items-start"
+                        } gap-3 ${message.role === "user" ? "sm:flex-row-reverse" : "sm:flex-row"}`}
                     >
                         <div className="flex-shrink-0">
                             {message.role === "user" ? (
-                                <div className="flex items-center justify-center w-8 h-8 text-white bg-blue-500 rounded-full">
+                                <div className="flex items-center justify-center w-8 h-8 text-sm text-white bg-blue-500 rounded-full">
                                     {name.charAt(0) || "U"}
                                 </div>
                             ) : (
@@ -251,8 +250,12 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                                 </div>
                             )}
                         </div>
-                        <div className="flex max-w-[80%] justify-start">
-                            <div className="p-3 text-gray-900 bg-gray-200 rounded-lg dark:bg-gray-900 dark:text-gray-100">
+                        <div
+                            className={`flex max-w-[85%] sm:max-w-[80%] justify-start ${
+                                message.role === "user" ? "mr-6 sm:mr-0" : "ml-6 sm:ml-0"
+                            }`}
+                        >
+                            <div className="p-3 text-sm text-gray-900 bg-gray-200 rounded-lg dark:bg-gray-900 dark:text-gray-100">
                                 {renderMessage(message.content)}
                                 <div className="mt-1 text-xs text-right text-gray-500 dark:text-gray-400">
                                     {new Date(message.timestamp).toLocaleString()}
@@ -262,19 +265,21 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                     </div>
                 ))}
                 {streamingMessage && (
-                    <div className="flex items-start gap-3">
+                    <div className="flex flex-col items-start gap-3 sm:items-start sm:flex-row">
                         <div className="flex-shrink-0">
                             <div className="flex items-center justify-center w-8 h-8 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-700">
                                 <Image src={ME} alt="AI" width={32} height={32} className="object-cover rounded-full" />
                             </div>
                         </div>
-                        <div className="max-w-[80%] rounded-lg p-3 bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-                            <MarkdownPreview
-                                source={streamingMessage}
-                                className="!bg-transparent !text-gray-900 dark:!text-gray-100 [&_pre]:!bg-gray-100 dark:[&_pre]:!bg-gray-800 [&_code]:!text-gray-800 dark:[&_code]:!text-gray-200"
-                                style={{ background: "transparent" }}
-                            />
-                            <span className="animate-pulse">▊</span>
+                        <div className="max-w-[85%] sm:max-w-[80%] ml-6 sm:ml-0 rounded-lg p-3 bg-gray-200 dark:bg-gray-900">
+                            <div className="text-sm text-gray-900 dark:text-gray-100">
+                                <MarkdownPreview
+                                    source={streamingMessage}
+                                    className="!bg-transparent !text-gray-900 dark:!text-gray-100 [&_pre]:!bg-gray-100 dark:[&_pre]:!bg-gray-800 [&_code]:!text-gray-800 dark:[&_code]:!text-gray-200"
+                                    style={{ background: "transparent" }}
+                                />
+                                <span className="animate-pulse">▊</span>
+                            </div>
                         </div>
                     </div>
                 )}
