@@ -40,7 +40,18 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onNewMessage, o
                 body: JSON.stringify({ message: text.trim(), visitorId }),
             });
 
-            if (!response.ok) throw new Error("Failed to send message");
+            if (!response.ok) {
+                const errorData = await response.json();
+                // 에러 메시지를 assistant 메시지로 추가
+                const errorMessage: Message = {
+                    id: Date.now().toString(),
+                    role: "assistant",
+                    content: errorData.error || "메시지 전송에 실패했습니다.",
+                    timestamp: Date.now(),
+                };
+                onNewMessage(errorMessage);
+                return;
+            }
 
             const reader = response.body?.getReader();
             if (!reader) throw new Error("No reader available");
@@ -80,9 +91,18 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onNewMessage, o
             setMessage("");
         } catch (error) {
             console.error("Error sending message:", error);
+            // 일반적인 에러도 assistant 메시지로 추가
+            const errorMessage: Message = {
+                id: Date.now().toString(),
+                role: "assistant",
+                content: error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.",
+                timestamp: Date.now(),
+            };
+            onNewMessage(errorMessage);
             onStreamingMessage(undefined);
         } finally {
             setIsLoading(false);
+            setMessage("");
         }
     };
 

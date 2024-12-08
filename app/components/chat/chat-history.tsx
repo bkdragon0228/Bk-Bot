@@ -126,7 +126,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                     <div className="w-[500px] h-[500px] bg-white rounded-lg dark:bg-gray-800 flex flex-col border border-gray-200 dark:border-gray-700">
                         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                처음 방문하셨군요! 회사명을 입력해주세요!
+                                안녕하세요! 회사명을 입력해주세요!
                             </h2>
                         </div>
 
@@ -140,10 +140,10 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                             />
                             <div className="flex flex-col gap-1 mt-4">
                                 <span className="block text-sm text-gray-500 text-pretty dark:text-gray-400">
-                                    입력하신 내용을 대화에 포함시킵니다.
+                                    회사명을 입력해주시면 제가 귀사에 대해 더 잘 이해할 수 있어요.
                                 </span>
                                 <span className="text-sm text-gray-500 text-pretty dark:text-gray-400">
-                                    원치 않으시면 건너뛰기를 눌러주세요.
+                                    원하지 않으시다면 건너뛰고 진행할 수 있습니다.
                                 </span>
                             </div>
                         </div>
