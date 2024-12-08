@@ -10,7 +10,7 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-    theme: "light",
+    theme: "dark",
     toggleTheme: () => {},
 });
 
@@ -20,7 +20,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         setMounted(true);
-        const savedTheme = (localStorage.getItem("theme") as Theme) || "light";
+        const savedTheme = (localStorage.getItem("theme") as Theme) || "dark";
         setTheme(savedTheme);
         document.documentElement.classList.toggle("dark", savedTheme === "dark");
     }, []);
