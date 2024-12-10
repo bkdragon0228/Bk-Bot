@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { cookies } from "next/headers";
 import { Visitor } from "@prisma/client";
+import { decodeSessionToken, getClientIP } from "@/app/lib/session";
 
 // 이력서 내용을 상수로 정의
 const RESUME_CONTENT = `
@@ -94,7 +95,27 @@ export async function POST(req: Request) {
     try {
         const body: ChatRequest = await req.json();
         const sessionToken = cookies().get("sessionToken")?.value;
+        const currentIP = getClientIP(req);
         const { message } = body;
+
+        if (!sessionToken) {
+            return NextResponse.json(
+                {
+                    error: "No session found",
+                },
+                { status: 401 }
+            );
+        }
+
+        const sessionInfo = decodeSessionToken(sessionToken);
+        if (!sessionInfo) {
+            return NextResponse.json(
+                {
+                    error: "Invalid session",
+                },
+                { status: 401 }
+            );
+        }
 
         // 오늘 자정을 기준으로 시작 시간과 끝 시간 설정
         const today = new Date();
@@ -102,14 +123,11 @@ export async function POST(req: Request) {
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
 
-        let visitor: Visitor | null = null;
-        if (sessionToken) {
-            visitor = await prisma.visitor.findUnique({
-                where: {
-                    sessionId: sessionToken,
-                },
-            });
-        }
+        const visitor = await prisma.visitor.findUnique({
+            where: {
+                sessionId: sessionToken,
+            },
+        });
 
         if (!visitor) {
             return NextResponse.json(
@@ -120,11 +138,13 @@ export async function POST(req: Request) {
             );
         }
 
-        // 오늘의 채팅 횟수 확인
+        // IP 기반으로 오늘의 채팅 횟수 확인
         const todayChatsCount = await prisma.chat.count({
             where: {
-                visitorId: visitor?.id,
-                role: "user", // 사용자 메시지만 카운트
+                visitor: {
+                    lastKnownIP: currentIP,
+                },
+                role: "user",
                 timestamp: {
                     gte: today,
                     lt: tomorrow,
@@ -132,11 +152,10 @@ export async function POST(req: Request) {
             },
         });
 
-        // 10회 초과시 에러 응답
         if (todayChatsCount >= 10) {
             return NextResponse.json(
                 {
-                    error: "일일 질문 한도(10회)를 초과했습니다. 내일 다시 시도해주세요.",
+                    error: "오늘 채팅 횟수가 10회를 초과했습니다. 내일 다시 시도해주세요.",
                 },
                 { status: 429 }
             ); // 429 Too Many Requests
