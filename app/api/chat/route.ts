@@ -2,7 +2,6 @@ import { OpenAI } from "openai";
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { cookies } from "next/headers";
-import { Visitor } from "@prisma/client";
 import { decodeSessionToken, getClientIP } from "@/app/lib/session";
 
 // 이력서 내용을 상수로 정의
