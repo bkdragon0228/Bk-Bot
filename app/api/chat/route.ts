@@ -1,6 +1,8 @@
 import { OpenAI } from "openai";
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { cookies } from "next/headers";
+import { Visitor } from "@prisma/client";
 
 // 이력서 내용을 상수로 정의
 const RESUME_CONTENT = `
@@ -82,7 +84,6 @@ OAuth 기반으로 SSO를 구현했습니다. 포털에 로그인된 사용자�
 
 interface ChatRequest {
     message: string;
-    visitorId: string;
 }
 
 const openai = new OpenAI({
@@ -92,7 +93,8 @@ const openai = new OpenAI({
 export async function POST(req: Request) {
     try {
         const body: ChatRequest = await req.json();
-        const { message, visitorId } = body;
+        const sessionToken = cookies().get("sessionToken")?.value;
+        const { message } = body;
 
         // 오늘 자정을 기준으로 시작 시간과 끝 시간 설정
         const today = new Date();
@@ -100,10 +102,28 @@ export async function POST(req: Request) {
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
 
+        let visitor: Visitor | null = null;
+        if (sessionToken) {
+            visitor = await prisma.visitor.findUnique({
+                where: {
+                    sessionId: sessionToken,
+                },
+            });
+        }
+
+        if (!visitor) {
+            return NextResponse.json(
+                {
+                    error: "세션이 만료되었습니다. 다시 시도해주세요.",
+                },
+                { status: 401 }
+            );
+        }
+
         // 오늘의 채팅 횟수 확인
         const todayChatsCount = await prisma.chat.count({
             where: {
-                visitorId,
+                visitorId: visitor?.id,
                 role: "user", // 사용자 메시지만 카운트
                 timestamp: {
                     gte: today,
@@ -123,16 +143,15 @@ export async function POST(req: Request) {
         }
 
         // 방문자 정보 업데이트 또는 생성
-        await prisma.visitor.upsert({
-            where: { id: visitorId },
-            update: { lastVisitAt: new Date() },
-            create: { id: visitorId },
+        await prisma.visitor.update({
+            where: { id: visitor.id },
+            data: { lastVisitAt: new Date() },
         });
 
         // 사용자 메시지 저장
         await prisma.chat.create({
             data: {
-                visitorId,
+                visitorId: visitor.id,
                 role: "user",
                 content: message,
             },
@@ -206,7 +225,7 @@ ${RESUME_CONTENT}
                 // 전체 응답 저장
                 await prisma.chat.create({
                     data: {
-                        visitorId,
+                        visitorId: visitor.id,
                         role: "assistant",
                         content: fullResponse,
                     },

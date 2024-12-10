@@ -1,19 +1,20 @@
 import { prisma } from "@/app/lib/prisma";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
     try {
-        const { searchParams } = new URL(request.url);
-        const visitorId = searchParams.get("visitorId");
+        const sessionToken = cookies().get("sessionToken")?.value;
 
-        if (!visitorId) {
-            return NextResponse.json({ error: "Visitor ID is required" }, { status: 400 });
+        if (!sessionToken) {
+            return NextResponse.json({ exists: false });
         }
 
-        // Check if there are chat records for the given visitorId
         const existingChat = await prisma.chat.findFirst({
             where: {
-                visitorId,
+                visitor: {
+                    sessionId: sessionToken,
+                },
             },
             select: {
                 id: true,
@@ -26,6 +27,11 @@ export async function GET(request: Request) {
         });
     } catch (error) {
         console.error("Error checking chat records:", error);
-        return NextResponse.json({ error: "Failed to check chat records" }, { status: 500 });
+        return NextResponse.json(
+            {
+                error: "Failed to check chat records",
+            },
+            { status: 500 }
+        );
     }
 }

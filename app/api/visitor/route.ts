@@ -1,31 +1,56 @@
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { generateSessionToken, getClientIP } from "@/app/lib/session";
 
 interface VisitorRequest {
-    visitorId: string;
     name?: string;
 }
 
-export async function POST(req: Request) {
-    const body: VisitorRequest = await req.json();
-    const { visitorId, name } = body;
+export async function POST(request: Request) {
+    try {
+        const body: VisitorRequest = await request.json();
+        const { name } = body;
 
-    console.log(visitorId, "visitorId");
+        const clientIP = getClientIP(request);
+        const newToken = generateSessionToken(clientIP);
 
-    if (!visitorId) {
-        return new Response("Visitor ID is required", { status: 400 });
+        // 새로운 방문자 생성
+        const visitor = await prisma.visitor.create({
+            data: {
+                sessionId: newToken,
+                lastKnownIP: clientIP,
+                name,
+            },
+        });
+
+        // 쿠키에 토큰 저장
+        cookies().set("sessionToken", newToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 30 * 24 * 60 * 60, // 30일
+        });
+
+        return NextResponse.json(
+            {
+                success: true,
+                visitor: {
+                    id: visitor.id,
+                    questionCount: 0,
+                },
+            },
+            { status: 201 }
+        );
+    } catch (error) {
+        console.error("Visitor creation error:", error);
+        return NextResponse.json(
+            {
+                error: "Failed to create visitor",
+            },
+            { status: 500 }
+        );
     }
-
-    await prisma.visitor.upsert({
-        where: { id: visitorId },
-        update: { lastVisitAt: new Date() },
-        create: {
-            id: visitorId,
-            lastVisitAt: new Date(),
-            name,
-        },
-    });
-
-    return new Response("Success", { status: 200 });
 }
 
 interface UpdateVisitorNameRequest {

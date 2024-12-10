@@ -8,8 +8,18 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model BlockedIP {
+    id          String   @id @default(uuid())
+    ip          String   @unique
+    reason      String?
+    blockedAt   DateTime @default(now())
+    expiresAt   DateTime? 
+}
+
 model Visitor {
-  id            String    @id
+  id            String    @id @default(uuid())
+  sessionId       String    @unique
+  lastKnownIP     String
   firstVisitAt  DateTime  @default(now())
   lastVisitAt   DateTime  @updatedAt
   name          String?

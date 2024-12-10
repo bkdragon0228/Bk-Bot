@@ -1,28 +1,23 @@
 import { prisma } from "@/app/lib/prisma";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { Visitor } from "@prisma/client";
 
 export async function GET(request: Request) {
     try {
-        const { searchParams } = new URL(request.url);
-        const visitorId = searchParams.get("visitorId");
+        const existingToken = cookies().get("sessionToken")?.value;
 
-        if (!visitorId) {
-            return NextResponse.json({ error: "Visitor ID is required" }, { status: 400 });
+        let visitor: Visitor | null = null;
+
+        if (existingToken) {
+            visitor = await prisma.visitor.findUnique({
+                where: { sessionId: existingToken },
+            });
         }
 
-        const existingVisitor = await prisma.visitor.findUnique({
-            where: {
-                id: visitorId,
-            },
-            select: {
-                id: true,
-                name: true,
-            },
-        });
-
         return NextResponse.json({
-            exists: !!existingVisitor,
-            name: existingVisitor?.name || "",
+            exists: !!visitor,
+            name: visitor?.name || "",
         });
     } catch (error) {
         console.error("Error checking visitor:", error);

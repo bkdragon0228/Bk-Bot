@@ -44,8 +44,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     const handleLoadHistory = async () => {
         setState("loading");
         try {
-            const visitorId = await getVisitorId();
-            const response = await fetch(`/api/chat/history?visitorId=${visitorId}`);
+            const response = await fetch(`/api/chat/history`);
             if (!response.ok) throw new Error("Failed to fetch history");
 
             const data = await response.json();
@@ -58,10 +57,9 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     };
 
     const handleCreateVisitor = async (name: string) => {
-        const visitorId = await getVisitorId();
         const response = await fetch(`/api/visitor`, {
             method: "POST",
-            body: JSON.stringify({ visitorId, name }),
+            body: JSON.stringify({ name }),
         });
 
         if (response.ok) {
@@ -73,8 +71,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     const handleCheckVisitor = useCallback(async () => {
         setState("loading");
         try {
-            const visitorId = await getVisitorId();
-            const response = await fetch(`/api/visitor/check?visitorId=${visitorId}`);
+            const response = await fetch(`/api/visitor/check`);
             const data = await response.json();
             setCheckVisitor(data.exists);
             setName(data.name);
@@ -94,8 +91,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     const handleCheckChat = async () => {
         setState("loading");
         try {
-            const visitorId = await getVisitorId();
-            const response = await fetch(`/api/chat/check?visitorId=${visitorId}`);
+            const response = await fetch(`/api/chat/check`);
             const data = await response.json();
             setCheckChat(data.exists);
         } catch (error) {

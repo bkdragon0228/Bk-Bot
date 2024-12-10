@@ -1,18 +1,25 @@
 import { prisma } from "@/app/lib/prisma";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
     try {
-        const { searchParams } = new URL(request.url);
-        const visitorId = searchParams.get("visitorId");
+        const sessionToken = cookies().get("sessionToken")?.value;
 
-        if (!visitorId) {
-            return NextResponse.json({ error: "Visitor ID is required" }, { status: 400 });
+        if (!sessionToken) {
+            return NextResponse.json(
+                {
+                    error: "No session found",
+                },
+                { status: 401 }
+            );
         }
 
         const chats = await prisma.chat.findMany({
             where: {
-                visitorId,
+                visitor: {
+                    sessionId: sessionToken,
+                },
             },
             orderBy: {
                 timestamp: "asc",
@@ -28,6 +35,11 @@ export async function GET(request: Request) {
         return NextResponse.json({ chats });
     } catch (error) {
         console.error("Error fetching chat history:", error);
-        return NextResponse.json({ error: "Failed to fetch chat history" }, { status: 500 });
+        return NextResponse.json(
+            {
+                error: "Failed to fetch chat history",
+            },
+            { status: 500 }
+        );
     }
 }
