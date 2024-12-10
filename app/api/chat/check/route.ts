@@ -2,7 +2,7 @@ import { prisma } from "@/app/lib/prisma";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export async function GET(request: Request) {
+export async function GET() {
     try {
         const sessionToken = cookies().get("sessionToken")?.value;
 

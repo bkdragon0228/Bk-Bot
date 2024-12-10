@@ -5,7 +5,6 @@ import { Message } from "@/app/lib/types";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import Image from "next/image";
 import ME from "@/public/image/me.jpeg";
-import { getVisitorId } from "@/app/lib/visitor";
 import { useTypewriterEffect } from "@/app/hooks/useTypewriterEffect";
 
 interface ChatHistoryProps {

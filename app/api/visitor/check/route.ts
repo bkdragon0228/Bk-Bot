@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { Visitor } from "@prisma/client";
 
-export async function GET(request: Request) {
+export async function GET() {
     try {
         const existingToken = cookies().get("sessionToken")?.value;
 
