@@ -2,7 +2,6 @@ import { OpenAI } from "openai";
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { cookies } from "next/headers";
-import { getClientIP } from "@/app/lib/session";
 
 // 이력서 내용을 상수로 정의
 const RESUME_CONTENT = `
@@ -94,7 +93,6 @@ export async function POST(req: Request) {
     try {
         const body: ChatRequest = await req.json();
         const sessionToken = cookies().get("sessionToken")?.value;
-        const currentIP = getClientIP(req);
         const { message } = body;
 
         if (!sessionToken) {
