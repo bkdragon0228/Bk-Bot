@@ -18,12 +18,14 @@ model BlockedIP {
 
 model Visitor {
   id            String    @id @default(uuid())
-  sessionId       String    @unique
-  lastKnownIP     String
+  sessionId     String    @unique
+  lastKnownIP   String
   firstVisitAt  DateTime  @default(now())
   lastVisitAt   DateTime  @updatedAt
   name          String?
   chats         Chat[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Chat {
