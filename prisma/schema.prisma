@@ -16,6 +16,15 @@ model BlockedIP {
     expiresAt   DateTime? 
 }
 
+model RequestLog {
+    id        String   @id @default(uuid())
+    ip        String
+    endpoint  String
+    timestamp DateTime @default(now())
+    
+    @@index([ip, timestamp])
+}
+
 model Visitor {
   id            String    @id @default(uuid())
   sessionId     String    @unique
