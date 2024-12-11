@@ -17,6 +17,53 @@ interface ChatHistoryProps {
 /** init: 처음 방문한 경우에만, loading: 처리 중, loaded: 처리 완료, error: 처리 실패 */
 type ChatHistoryState = "init" | "loading" | "loaded" | "error";
 
+function ProfilePopover() {
+    return (
+        <div className="relative group">
+            <div className="flex items-center justify-center w-8 h-8 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-700 hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600">
+                <Image src={ME} alt="AI" width={32} height={32} className="object-cover w-full h-full rounded-full" />
+            </div>
+
+            <div className="absolute top-[90%] left-0 w-full h-3" />
+
+            <div className="absolute z-10 invisible p-4 mt-2 transition-all duration-300 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:visible w-80 dark:bg-gray-800 dark:border-gray-700 group-hover:opacity-100 [&:hover]:visible [&:hover]:opacity-100">
+                <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-16 h-16 overflow-hidden rounded-full">
+                        <Image src={ME} alt="Profile" width={64} height={64} className="object-cover w-full h-full" />
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-white">김범규</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Frontend Developer</p>
+                        <div className="mt-2 space-y-1">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">안녕하세요.</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">프론트엔드 개발자 김범규입니다.</p>
+                            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                <a
+                                    href="https://github.com/bkdragon0228"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:text-gray-700 dark:hover:text-gray-300"
+                                >
+                                    GitHub
+                                </a>
+                                <span>•</span>
+                                <a
+                                    href="https://bkdragon0228.tistory.com"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:text-gray-700 dark:hover:text-gray-300"
+                                >
+                                    Blog
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function ChatHistory({ messages, streamingMessage, onLoadHistory, onSendMessage }: ChatHistoryProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [name, setName] = useState<string>("");
@@ -64,6 +111,11 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
         if (response.ok) {
             setState("loaded");
             setCheckVisitor(true);
+        } else {
+            const errorData = await response.json();
+            alert(errorData.error || "방문자 생성에 실패했습니다.");
+            console.error("Error creating visitor:", errorData);
+            // setState("error");
         }
     };
 
@@ -84,6 +136,8 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
             }
         } catch (error) {
             console.error("Error checking visitor existence:", error);
+
+            setState("error");
         }
     }, []);
 
@@ -103,7 +157,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     const firstMessage = useTypewriterEffect({
         text: name
             ? `안녕하세요! ${name}에 지원한 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.`
-            : `안녕하세요! 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.`,
+            : `안녕하세요! 프론트엔드 개��자 김범규입니다. 잘부탁드립니다.`,
         delay: 50,
         startTyping: checkVisitor && isLoaded && !checkChat,
     });
@@ -132,6 +186,11 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="회사명을 입력해주세요."
                                 className="w-full p-2 text-sm text-gray-900 bg-gray-100 border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        handleCreateVisitor(name);
+                                    }
+                                }}
                             />
                             <div className="flex flex-col gap-1 mt-4">
                                 <span className="block text-sm text-gray-500 text-pretty dark:text-gray-400">
@@ -165,13 +224,24 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                     <span className="text-sm text-gray-500 dark:text-gray-400">
                         또 오셨군요? 이전 대화를 불러올 수 있어요!
                     </span>
-                    <button
-                        onClick={handleLoadHistory}
-                        disabled={isLoading}
-                        className="px-4 py-2 text-sm text-gray-700 transition-colors bg-gray-100 rounded-lg shadow dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 disabled:opacity-50"
-                    >
-                        {isLoading ? "불러오는 중..." : "이전 대화 불러오기"}
-                    </button>
+                    <div className="flex flex-col gap-2">
+                        <button
+                            onClick={handleLoadHistory}
+                            disabled={isLoading}
+                            className="px-4 py-2 text-sm text-gray-700 transition-colors bg-gray-100 rounded-lg shadow dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 disabled:opacity-50"
+                        >
+                            {isLoading ? "불러오는 중..." : "이전 대화 불러오기"}
+                        </button>
+                        <button
+                            onClick={() => {
+                                setState("loaded");
+                                setCheckChat(false);
+                            }}
+                            className="px-4 py-2 text-sm text-gray-700 transition-colors bg-gray-100 rounded-lg shadow dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300"
+                        >
+                            새로운 대화 시작하기
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -204,7 +274,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                                     자기소개 부탁드립니다.
                                 </button>
                                 <button
-                                    onClick={() => onSendMessage("최근 프로젝트에 대해 설명해주세요.")}
+                                    onClick={() => onSendMessage("최근 프로��트에 대해 설명해주세요.")}
                                     className="px-4 py-2 text-left text-gray-900 transition-colors bg-gray-200 rounded-lg shadow hover:bg-gray-200 dark:hover:bg-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                 >
                                     최근 프로젝트에 대해 설명해주세요.
@@ -234,15 +304,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                                     {name.charAt(0) || "U"}
                                 </div>
                             ) : (
-                                <div className="flex items-center justify-center w-8 h-8 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-700">
-                                    <Image
-                                        src={ME}
-                                        alt="AI"
-                                        width={32}
-                                        height={32}
-                                        className="object-cover rounded-full"
-                                    />
-                                </div>
+                                <ProfilePopover />
                             )}
                         </div>
                         <div
@@ -262,9 +324,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                 {streamingMessage && (
                     <div className="flex flex-col items-start gap-3 sm:items-start sm:flex-row">
                         <div className="flex-shrink-0">
-                            <div className="flex items-center justify-center w-8 h-8 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-700">
-                                <Image src={ME} alt="AI" width={32} height={32} className="object-cover rounded-full" />
-                            </div>
+                            <ProfilePopover />
                         </div>
                         <div className="max-w-[85%] sm:max-w-[80%] ml-6 sm:ml-0 rounded-lg p-3 bg-gray-200 dark:bg-gray-900">
                             <div className="text-sm text-gray-900 dark:text-gray-100">
