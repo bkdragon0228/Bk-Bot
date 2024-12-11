@@ -17,10 +17,10 @@ export async function GET(request: Request) {
             });
         }
 
-        if (visitor && visitor.lastKnownIP !== currentIP) {
+        if (visitor) {
             await prisma.visitor.update({
                 where: { id: visitor.id },
-                data: { lastKnownIP: currentIP },
+                data: { lastKnownIP: currentIP, lastVisitAt: new Date() },
             });
         }
 

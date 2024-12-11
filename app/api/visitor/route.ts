@@ -13,6 +13,31 @@ export async function POST(request: Request) {
         const { name } = body;
 
         const clientIP = getClientIP(request);
+
+        // 오늘 생성된 같은 IP의 방문자 수 확인
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const visitorCount = await prisma.visitor.count({
+            where: {
+                lastKnownIP: clientIP,
+                createdAt: {
+                    gte: today,
+                },
+            },
+        });
+
+        // 하루 제한(3명) 체크
+        if (visitorCount >= 3) {
+            return NextResponse.json(
+                {
+                    error: "Daily visitor limit reached for this IP",
+                    success: false,
+                },
+                { status: 429 } // Too Many Requests
+            );
+        }
+
         const newToken = generateSessionToken(clientIP);
 
         // 새로운 방문자 생성

@@ -106,15 +106,15 @@ export async function POST(req: Request) {
             );
         }
 
-        const sessionInfo = decodeSessionToken(sessionToken);
-        if (!sessionInfo) {
-            return NextResponse.json(
-                {
-                    error: "Invalid session",
-                },
-                { status: 401 }
-            );
-        }
+        // const sessionInfo = decodeSessionToken(sessionToken);
+        // if (!sessionInfo) {
+        //     return NextResponse.json(
+        //         {
+        //             error: "Invalid session",
+        //         },
+        //         { status: 401 }
+        //     );
+        // }
 
         // 오늘 자정을 기준으로 시작 시간과 끝 시간 설정
         const today = new Date();
@@ -123,8 +123,21 @@ export async function POST(req: Request) {
         tomorrow.setDate(tomorrow.getDate() + 1);
 
         const visitor = await prisma.visitor.findUnique({
-            where: {
-                sessionId: sessionToken,
+            where: { sessionId: sessionToken },
+            include: {
+                _count: {
+                    select: {
+                        chats: {
+                            where: {
+                                role: "user",
+                                timestamp: {
+                                    gte: today,
+                                    lt: tomorrow,
+                                },
+                            },
+                        },
+                    },
+                },
             },
         });
 
@@ -151,20 +164,15 @@ export async function POST(req: Request) {
             },
         });
 
-        if (todayChatsCount >= 10) {
+        const DAILY_LIMIT = 10;
+        if (visitor._count.chats >= DAILY_LIMIT) {
             return NextResponse.json(
                 {
-                    error: "오늘 채팅 횟수가 10회를 초과했습니다. 내일 다시 시도해주세요.",
+                    error: `하루 ${DAILY_LIMIT}회 질문 제한을 초과했습니다. 내일 다시 시도해주세요.`,
                 },
                 { status: 429 }
-            ); // 429 Too Many Requests
+            );
         }
-
-        // 방문자 정보 업데이트 또는 생성
-        await prisma.visitor.update({
-            where: { id: visitor.id },
-            data: { lastVisitAt: new Date() },
-        });
 
         // 사용자 메시지 저장
         await prisma.chat.create({
