@@ -26,7 +26,7 @@ export function generateSessionToken(ip: string): string {
 // 토큰에서 정보 추출
 export function decodeSessionToken(token: string): SessionPayload | null {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as SessionPayload;
+        const decoded = jwt.verify(token, "temporary-secret-key") as SessionPayload;
         return decoded;
     } catch (error) {
         console.error("Token decode error:", error);
