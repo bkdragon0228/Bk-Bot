@@ -2,7 +2,7 @@ import { OpenAI } from "openai";
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { cookies } from "next/headers";
-import { decodeSessionToken, getClientIP } from "@/app/lib/session";
+import { getClientIP } from "@/app/lib/session";
 
 // 이력서 내용을 상수로 정의
 const RESUME_CONTENT = `
@@ -106,16 +106,6 @@ export async function POST(req: Request) {
             );
         }
 
-        // const sessionInfo = decodeSessionToken(sessionToken);
-        // if (!sessionInfo) {
-        //     return NextResponse.json(
-        //         {
-        //             error: "Invalid session",
-        //         },
-        //         { status: 401 }
-        //     );
-        // }
-
         // 오늘 자정을 기준으로 시작 시간과 끝 시간 설정
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -149,20 +139,6 @@ export async function POST(req: Request) {
                 { status: 401 }
             );
         }
-
-        // IP 기반으로 오늘의 채팅 횟수 확인
-        const todayChatsCount = await prisma.chat.count({
-            where: {
-                visitor: {
-                    lastKnownIP: currentIP,
-                },
-                role: "user",
-                timestamp: {
-                    gte: today,
-                    lt: tomorrow,
-                },
-            },
-        });
 
         const DAILY_LIMIT = 10;
         if (visitor._count.chats >= DAILY_LIMIT) {

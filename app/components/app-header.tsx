@@ -54,7 +54,12 @@ export default function AppHeader() {
             <header className="sticky top-0 z-50 w-full transition-colors bg-white border-b border-gray-200 dark:border-gray-800 dark:bg-gray-900">
                 <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center">
-                        <h1 className="text-xl font-semibold text-gray-900 dark:text-white">BK Bot</h1>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="text-xl font-semibold text-gray-900 dark:text-white hover:opacity-80"
+                        >
+                            BK Bot
+                        </button>
                     </div>
                 </div>
             </header>
@@ -65,7 +70,12 @@ export default function AppHeader() {
         <header className="sticky top-0 z-50 w-full transition-colors bg-white border-b border-gray-200 dark:border-gray-800 dark:bg-gray-900">
             <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center">
-                    <h1 className="text-xl font-semibold text-gray-900 dark:text-white">BK Bot</h1>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="text-xl font-semibold text-gray-900 dark:text-white hover:opacity-80"
+                    >
+                        BK Bot
+                    </button>
                 </div>
                 <button
                     onClick={toggleTheme}
