@@ -74,6 +74,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     const [state, setState] = useState<ChatHistoryState | null>(null);
     const isLoaded = state === "loaded";
     const isLoading = state === "loading";
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -91,31 +92,44 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
         setState("loading");
         try {
             const response = await fetch(`/api/chat/history`);
-            if (!response.ok) throw new Error("Failed to fetch history");
+            if (!response.ok) {
+                const error = await response.json();
+                setErrorMessage(error.error);
+                setState("error");
+                return;
+            }
 
             const data = await response.json();
             onLoadHistory(data.chats);
+            setState("loaded");
         } catch (error) {
             console.error("Error loading history:", error);
-        } finally {
-            setState("loaded");
+            setErrorMessage("채팅 기록을 불러오는데 실패했습니다.");
+            setState("error");
         }
     };
 
     const handleCreateVisitor = async (name: string) => {
-        const response = await fetch(`/api/visitor`, {
-            method: "POST",
-            body: JSON.stringify({ name }),
-        });
+        setState("loading");
+        try {
+            const response = await fetch(`/api/visitor`, {
+                method: "POST",
+                body: JSON.stringify({ name }),
+            });
 
-        if (response.ok) {
+            if (!response.ok) {
+                const error = await response.json();
+                setErrorMessage(error.error);
+                setState("error");
+                return;
+            }
+
             setState("loaded");
             setCheckVisitor(true);
-        } else {
-            const errorData = await response.json();
-            alert(errorData.error || "방문자 생성에 실패했습니다.");
-            console.error("Error creating visitor:", errorData);
-            // setState("error");
+        } catch (error) {
+            console.error("Error creating visitor:", error);
+            setErrorMessage("방문자 생성에 실패했습니다.");
+            setState("error");
         }
     };
 
@@ -123,6 +137,13 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
         setState("loading");
         try {
             const response = await fetch(`/api/visitor/check`);
+            if (!response.ok) {
+                const error = await response.json();
+                setErrorMessage(error.error);
+                setState("error");
+                return;
+            }
+
             const data = await response.json();
             setCheckVisitor(data.exists);
             setName(data.name);
@@ -136,7 +157,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
             }
         } catch (error) {
             console.error("Error checking visitor existence:", error);
-
+            setErrorMessage("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
             setState("error");
         }
     }, []);
@@ -157,7 +178,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     const firstMessage = useTypewriterEffect({
         text: name
             ? `안녕하세요! ${name}에 지원한 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.`
-            : `안녕하세요! 프론트엔드 개��자 김범규입니다. 잘부탁드립니다.`,
+            : `안녕하세요! 프론트엔드 개발자 김범규입니다. 잘부탁드립니���.`,
         delay: 50,
         startTyping: checkVisitor && isLoaded && !checkChat,
     });
@@ -169,6 +190,25 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     return (
         <div className="relative">
             {state === null && <>초기화 중입니다.</>}
+            {state === "error" && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl dark:bg-gray-800">
+                        <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+                            오류가 발생했습니다
+                        </h3>
+                        <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">{errorMessage}</p>
+                        <button
+                            onClick={() => {
+                                setErrorMessage("");
+                                handleCheckVisitor();
+                            }}
+                            className="w-full px-4 py-2 text-sm text-white transition-colors bg-blue-500 rounded-lg hover:bg-blue-600"
+                        >
+                            다시 시도
+                        </button>
+                    </div>
+                </div>
+            )}
             {/* 처음 방문한 경우 */}
             {state === "init" && !checkVisitor && (
                 <div className="fixed top-0 left-0 flex flex-col items-center justify-center w-screen h-screen gap-2 bg-transparent">
@@ -274,7 +314,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                                     자기소개 부탁드립니다.
                                 </button>
                                 <button
-                                    onClick={() => onSendMessage("최근 프로��트에 대해 설명해주세요.")}
+                                    onClick={() => onSendMessage("최근 프로젝트에 대해 설명해주세요.")}
                                     className="px-4 py-2 text-left text-gray-900 transition-colors bg-gray-200 rounded-lg shadow hover:bg-gray-200 dark:hover:bg-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                 >
                                     최근 프로젝트에 대해 설명해주세요.
