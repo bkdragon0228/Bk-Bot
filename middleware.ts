@@ -7,7 +7,7 @@ export async function middleware(request: Request) {
     }
 
     try {
-        const ipCheckResponse = await fetch(`${request.url}/api/auth/check-ip`, {
+        const ipCheckResponse = await fetch(`api/auth/check-ip`, {
             method: "POST",
             headers: Object.fromEntries(request.headers),
         });
