@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
-// import type { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
-export async function middleware(request: Request) {
-    if (!request.url.startsWith("/api")) {
+export async function middleware(request: NextRequest) {
+    if (!request.nextUrl.pathname.startsWith("/api")) {
         return NextResponse.next();
     }
 
     try {
         const ipCheckResponse = await fetch(`api/auth/check-ip`, {
             method: "POST",
-            headers: Object.fromEntries(request.headers),
+            headers: {
+                "x-forwarded-for": request.headers.get("x-forwarded-for") || request.ip || "",
+                "user-agent": request.headers.get("user-agent") || "",
+                // 필요한 경우 추가 헤더
+            },
         });
 
         if (!ipCheckResponse.ok) {
