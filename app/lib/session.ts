@@ -31,7 +31,20 @@ export function decodeSessionToken(token: string): SessionPayload | null {
 }
 
 export function getClientIP(request: Request): string {
+    // Cloudflare의 실제 클라이언트 IP
+    const cfConnectingIP = request.headers.get("cf-connecting-ip");
+    if (cfConnectingIP) return cfConnectingIP;
+
+    // X-Forwarded-For 헤더에서 첫 번째 IP 가져오기
     const forwardedFor = request.headers.get("x-forwarded-for");
+    if (forwardedFor) {
+        const ips = forwardedFor.split(",");
+        return ips[0].trim();
+    }
+
+    // X-Real-IP 헤더
     const realIP = request.headers.get("x-real-ip");
-    return forwardedFor?.split(",")[0] || realIP || "unknown";
+    if (realIP) return realIP;
+
+    return "unknown";
 }
