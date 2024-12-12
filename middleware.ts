@@ -9,10 +9,7 @@ export async function middleware(request: NextRequest) {
     try {
         const ipCheckResponse = await fetch(`${request.nextUrl.origin}/api/auth/check-ip`, {
             method: "POST",
-            headers: {
-                "x-forwarded-for": request.headers.get("x-forwarded-for") || "",
-                "x-real-ip": request.headers.get("x-real-ip") || "",
-            },
+            headers: Object.fromEntries(request.headers),
         });
 
         if (!ipCheckResponse.ok) {
