@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+    console.log("Middleware called");
     if (!request.nextUrl.pathname.startsWith("/api")) {
         return NextResponse.next();
     }
 
     try {
-        const ipCheckResponse = await fetch(`api/auth/check-ip`, {
+        const ipCheckResponse = await fetch(`${request.nextUrl.origin}/api/auth/check-ip`, {
             method: "POST",
             headers: {
                 "x-forwarded-for": request.headers.get("x-forwarded-for") || request.ip || "",
