@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-    console.log("Middleware called");
-    if (!request.nextUrl.pathname.startsWith("/api")) {
+    if (!request.nextUrl.pathname.startsWith("/api") || request.nextUrl.pathname === "/api/auth/check-ip") {
         return NextResponse.next();
     }
 
