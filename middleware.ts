@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+// import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
-    if (!request.nextUrl.pathname.startsWith("/api")) {
+export async function middleware(request: Request) {
+    if (!request.url.startsWith("/api")) {
         return NextResponse.next();
     }
 
     try {
-        const ipCheckResponse = await fetch(`${request.nextUrl.origin}/api/auth/check-ip`, {
+        const ipCheckResponse = await fetch(`${request.url}/api/auth/check-ip`, {
             method: "POST",
             headers: Object.fromEntries(request.headers),
         });
