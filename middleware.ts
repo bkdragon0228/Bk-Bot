@@ -6,14 +6,12 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
+    const headers = new Headers(request.headers);
+
     try {
         const ipCheckResponse = await fetch(`${request.nextUrl.origin}/api/auth/check-ip`, {
             method: "POST",
-            headers: {
-                "x-forwarded-for": request.headers.get("x-forwarded-for") || request.ip || "",
-                "user-agent": request.headers.get("user-agent") || "",
-                // 필요한 경우 추가 헤더
-            },
+            headers,
         });
 
         if (!ipCheckResponse.ok) {
