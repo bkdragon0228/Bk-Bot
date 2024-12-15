@@ -83,7 +83,17 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     const renderMessage = (content: string) => (
         <MarkdownPreview
             source={content}
-            className="!bg-transparent !text-gray-900 dark:!text-gray-100 [&_pre]:!bg-gray-100 dark:[&_pre]:!bg-gray-800 [&_code]:!text-gray-800 dark:[&_code]:!text-gray-200 [&_p]:text-sm"
+            className="!bg-transparent !text-gray-900 dark:!text-gray-100 
+                    [&_pre]:!bg-gray-100 dark:[&_pre]:!bg-gray-800 
+                    [&_code]:!text-gray-800 dark:[&_code]:!text-gray-200 
+                      [&_p]:text-sm 
+                      [&_pre]:overflow-x-auto
+                      [&_pre]:w-full
+                      [&_pre]:p-4 [&_pre]:rounded-md
+                      [&_pre]:whitespace-pre
+                      [&_pre_code]:inline-block
+                      [&_pre]:max-w-[calc(80vw-theme(space.12))]
+                      sm:[&_pre]:max-w-[calc(60vw-theme(space.12))]"
             style={{ background: "transparent" }}
         />
     );
@@ -178,7 +188,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
     const firstMessage = useTypewriterEffect({
         text: name
             ? `안녕하세요! ${name}에 지원한 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.`
-            : `안녕하세요! 프론트엔드 개발자 김범규입니다. 잘부탁드립니���.`,
+            : `안녕하세요! 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.`,
         delay: 50,
         startTyping: checkVisitor && isLoaded && !checkChat,
     });
@@ -320,7 +330,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                                     최근 프로젝트에 대해 설명해주세요.
                                 </button>
                                 <button
-                                    onClick={() => onSendMessage("가장 자신 있는 기술 스택은 무엇인가요?")}
+                                    onClick={() => onSendMessage("가장 자신 있는 기��� 스택은 무엇인가요?")}
                                     className="px-4 py-2 text-left text-gray-900 transition-colors bg-gray-200 rounded-lg shadow hover:bg-gray-200 dark:hover:bg-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                 >
                                     가장 자신 있는 기술 스택은 무엇인가요?
@@ -352,8 +362,8 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                                 message.role === "user" ? "mr-6 sm:mr-0" : "ml-6 sm:ml-0"
                             }`}
                         >
-                            <div className="p-3 text-sm text-gray-900 bg-gray-200 rounded-lg dark:bg-gray-900 dark:text-gray-100">
-                                {renderMessage(message.content)}
+                            <div className="w-full p-3 overflow-hidden text-sm text-gray-900 bg-gray-200 rounded-lg dark:bg-gray-900 dark:text-gray-100">
+                                <div className="overflow-hidden">{renderMessage(message.content)}</div>
                                 <div className="mt-1 text-xs text-right text-gray-500 dark:text-gray-400">
                                     {new Date(message.timestamp).toLocaleString()}
                                 </div>
