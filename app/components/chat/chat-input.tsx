@@ -118,7 +118,7 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onNewMessage, o
     };
 
     return (
-        <form onSubmit={handleSubmit} className="mt-4">
+        <form onSubmit={handleSubmit}>
             <div className="flex gap-2">
                 <input
                     type="text"

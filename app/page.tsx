@@ -1,44 +1,46 @@
-"use client";
+import { getApiUrl } from "./lib/util";
+import ChatContainer from "./components/chat/chat-container";
+import { cookies } from "next/headers";
 
-import { useRef, useState } from "react";
-import { Suspense } from "react";
-import ChatHistory from "./components/chat/chat-history";
-import ChatInput, { ChatInputHandle } from "./components/chat/chat-input";
-import { LoadingSpinner } from "./components/ui/loading-spinner";
-import { Message } from "./lib/types";
-
-export default function Home() {
-    const ref = useRef<ChatInputHandle>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [streamingMessage, setStreamingMessage] = useState<string>();
-
-    const handleNewMessage = (message: Message) => {
-        setMessages((prev) => [...prev, message]);
+export default async function Home() {
+    let visitorData = {
+        exists: false,
+        name: "",
+        hasChat: false,
     };
 
-    const handleLoadHistory = (historicalMessages: Message[]) => {
-        setMessages(historicalMessages);
-    };
+    const response = await fetch(`${getApiUrl()}/api/visitor/check`, {
+        credentials: "include",
+        cache: "no-store",
+        headers: {
+            Cookie: cookies().toString(),
+        },
+    });
+    const visitor = await response.json();
 
-    const handleSendMessage = (message: string) => {
-        ref.current?.sendMessage(message);
-    };
+    if (visitor.exists) {
+        const chatResponse = await fetch(`${getApiUrl()}/api/chat/check`, {
+            credentials: "include",
+            cache: "no-store",
+            headers: {
+                Cookie: cookies().toString(),
+            },
+        });
+        const chat = await chatResponse.json();
+
+        visitorData = {
+            exists: true,
+            name: visitor.name || "",
+            hasChat: chat.exists,
+        };
+    }
 
     return (
-        <main className="flex flex-col flex-1 basis-0 bg-gray-50 dark:bg-gray-900">
-            {/* 채팅 섹션 */}
-            <div className="flex flex-col flex-1 w-full p-4 mx-auto md:w-1/2 basis-0">
-                <div className="flex-1 p-4 overflow-y-auto bg-white rounded-lg shadow-sm basis-0 dark:bg-gray-800 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
-                    <Suspense fallback={<LoadingSpinner />}>
-                        <ChatHistory
-                            messages={messages}
-                            streamingMessage={streamingMessage}
-                            onLoadHistory={handleLoadHistory}
-                            onSendMessage={handleSendMessage}
-                        />
-                    </Suspense>
+        <main className="flex flex-col flex-1 w-screen h-screen bg-gray-50 dark:bg-gray-900">
+            <div className="flex flex-col flex-1 p-4 mx-auto md:w-1/2">
+                <div className="flex flex-col flex-1 p-4 overflow-hidden rounded-lg shadow-sm ">
+                    <ChatContainer initialVisitorData={visitorData} />
                 </div>
-                <ChatInput ref={ref} onNewMessage={handleNewMessage} onStreamingMessage={setStreamingMessage} />
             </div>
         </main>
     );

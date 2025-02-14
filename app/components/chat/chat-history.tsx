@@ -12,6 +12,11 @@ interface ChatHistoryProps {
     streamingMessage?: string;
     onLoadHistory: (messages: Message[]) => void;
     onSendMessage: (message: string) => void;
+    initialVisitorData: {
+        exists: boolean;
+        name: string;
+        hasChat: boolean;
+    };
 }
 
 /** init: 처음 방문한 경우에만, loading: 처리 중, loaded: 처리 완료, error: 처리 실패 */
@@ -64,17 +69,22 @@ function ProfilePopover() {
     );
 }
 
-export default function ChatHistory({ messages, streamingMessage, onLoadHistory, onSendMessage }: ChatHistoryProps) {
+export default function ChatHistory({
+    messages,
+    streamingMessage,
+    onLoadHistory,
+    onSendMessage,
+    initialVisitorData,
+}: ChatHistoryProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const [name, setName] = useState<string>("");
+    const [name, setName] = useState<string>(initialVisitorData.name);
+    const [checkVisitor, setCheckVisitor] = useState<boolean>(initialVisitorData.exists);
+    const [checkChat, setCheckChat] = useState<boolean>(initialVisitorData.hasChat);
+    const [state, setState] = useState<ChatHistoryState>(initialVisitorData.exists ? "loaded" : "init");
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
-    const [checkVisitor, setCheckVisitor] = useState<boolean>(false);
-    const [checkChat, setCheckChat] = useState<boolean>(false);
-
-    const [state, setState] = useState<ChatHistoryState | null>(null);
     const isLoaded = state === "loaded";
     const isLoading = state === "loading";
-    const [errorMessage, setErrorMessage] = useState<string>("");
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -98,6 +108,48 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
         />
     );
 
+    const handleCreateVisitor = async (name: string) => {
+        setState("loading");
+        try {
+            const response = await fetch(`/api/visitor`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                setErrorMessage(error.error);
+                setState("error");
+                return;
+            }
+
+            setState("loaded");
+            setCheckVisitor(true);
+        } catch (error) {
+            console.error("Error creating visitor:", error);
+            setErrorMessage("방문자 생성에 실패했습니다.");
+            setState("error");
+        }
+    };
+
+    const handleModalSubmit = () => {
+        if (name) {
+            handleCreateVisitor(name);
+        } else {
+            handleCreateVisitor("");
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            handleModalSubmit();
+        }
+    };
+
     const handleLoadHistory = async () => {
         setState("loading");
         try {
@@ -119,72 +171,6 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
         }
     };
 
-    const handleCreateVisitor = async (name: string) => {
-        setState("loading");
-        try {
-            const response = await fetch(`/api/visitor`, {
-                method: "POST",
-                body: JSON.stringify({ name }),
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                setErrorMessage(error.error);
-                setState("error");
-                return;
-            }
-
-            setState("loaded");
-            setCheckVisitor(true);
-        } catch (error) {
-            console.error("Error creating visitor:", error);
-            setErrorMessage("방문자 생성에 실패했습니다.");
-            setState("error");
-        }
-    };
-
-    const handleCheckVisitor = useCallback(async () => {
-        setState("loading");
-        try {
-            const response = await fetch(`/api/visitor/check`);
-            if (!response.ok) {
-                const error = await response.json();
-                setErrorMessage(error.error);
-                setState("error");
-                return;
-            }
-
-            const data = await response.json();
-            setCheckVisitor(data.exists);
-            setName(data.name);
-
-            if (!data.exists) {
-                setState("init");
-                setCheckChat(false);
-            } else {
-                setState("loaded");
-                handleCheckChat();
-            }
-        } catch (error) {
-            console.error("Error checking visitor existence:", error);
-            setErrorMessage("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-            setState("error");
-        }
-    }, []);
-
-    const handleCheckChat = async () => {
-        setState("loading");
-        try {
-            const response = await fetch(`/api/chat/check`);
-            const data = await response.json();
-            setCheckChat(data.exists);
-        } catch (error) {
-            console.error("Error checking chat records:", error);
-        } finally {
-            setState("loaded");
-        }
-    };
-
     const firstMessage = useTypewriterEffect({
         text: name
             ? `안녕하세요! ${name}에 지원한 프론트엔드 개발자 김범규입니다. 잘부탁드립니다.`
@@ -192,10 +178,6 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
         delay: 50,
         startTyping: checkVisitor && isLoaded && !checkChat,
     });
-
-    useEffect(() => {
-        handleCheckVisitor();
-    }, [handleCheckVisitor]);
 
     return (
         <div className="relative">
@@ -210,7 +192,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                         <button
                             onClick={() => {
                                 setErrorMessage("");
-                                handleCheckVisitor();
+                                handleLoadHistory();
                             }}
                             className="w-full px-4 py-2 text-sm text-white transition-colors bg-blue-500 rounded-lg hover:bg-blue-600"
                         >
@@ -219,10 +201,9 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                     </div>
                 </div>
             )}
-            {/* 처음 방문한 경우 */}
             {state === "init" && !checkVisitor && (
-                <div className="fixed top-0 left-0 flex flex-col items-center justify-center w-screen h-screen gap-2 bg-transparent">
-                    <div className="w-[500px] h-[500px] bg-white rounded-lg dark:bg-gray-800 flex flex-col border border-gray-200 dark:border-gray-700">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="w-[500px] bg-white rounded-lg dark:bg-gray-800 flex flex-col border border-gray-200 dark:border-gray-700">
                         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                 안녕하세요! 회사명을 입력해주세요!
@@ -236,11 +217,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="회사명을 입력해주세요."
                                 className="w-full p-2 text-sm text-gray-900 bg-gray-100 border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        handleCreateVisitor(name);
-                                    }
-                                }}
+                                onKeyDown={handleKeyDown}
                             />
                             <div className="flex flex-col gap-1 mt-4">
                                 <span className="block text-sm text-gray-500 text-pretty dark:text-gray-400">
@@ -253,7 +230,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                         </div>
                         <div className="flex flex-row-reverse gap-2 p-4 mt-auto border-t border-gray-200 dark:border-gray-700">
                             <button
-                                onClick={() => name && handleCreateVisitor(name)}
+                                onClick={handleModalSubmit}
                                 className="w-full p-2 text-sm text-gray-900 bg-gray-100 border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                             >
                                 시작하기
@@ -330,7 +307,7 @@ export default function ChatHistory({ messages, streamingMessage, onLoadHistory,
                                     최근 프로젝트에 대해 설명해주세요.
                                 </button>
                                 <button
-                                    onClick={() => onSendMessage("가장 자신 있는 기��� 스택은 무엇인가요?")}
+                                    onClick={() => onSendMessage("가장 자신 있는 기술 스택은 무엇인가요?")}
                                     className="px-4 py-2 text-left text-gray-900 transition-colors bg-gray-200 rounded-lg shadow hover:bg-gray-200 dark:hover:bg-gray-700 dark:bg-gray-900 dark:text-gray-100"
                                 >
                                     가장 자신 있는 기술 스택은 무엇인가요?
