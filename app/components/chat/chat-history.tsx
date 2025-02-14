@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Message } from "@/app/lib/types";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 import Image from "next/image";
