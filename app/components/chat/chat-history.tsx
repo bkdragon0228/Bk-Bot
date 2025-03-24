@@ -6,7 +6,6 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 import Image from "next/image";
 import ME from "@/public/image/me.jpeg";
 import { useTypewriterEffect } from "@/app/hooks/useTypewriterEffect";
-import { ChatSkeleton } from "../ui/chat-skeleton";
 import { LoadingSpinner } from "../ui/loading-spinner";
 
 interface ChatHistoryProps {
