@@ -1,10 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Suspense } from "react";
 import ChatHistory from "./chat-history";
 import ChatInput, { ChatInputHandle } from "./chat-input";
-import { LoadingSpinner } from "../ui/loading-spinner";
 import { Message } from "@/app/lib/types";
 
 interface ChatContainerProps {
@@ -33,7 +31,7 @@ export default function ChatContainer({ initialVisitorData }: ChatContainerProps
     };
 
     return (
-        <Suspense fallback={<LoadingSpinner />}>
+        <>
             <div className="flex-1 p-4 bg-white dark:bg-gray-800">
                 <ChatHistory
                     messages={messages}
@@ -43,10 +41,9 @@ export default function ChatContainer({ initialVisitorData }: ChatContainerProps
                     initialVisitorData={initialVisitorData}
                 />
             </div>
-            <div className="h-4"></div>
-            <div className="fixed bottom-0 w-full mx-auto -translate-x-1/2 bg-white dark:bg-gray-800 md:w-1/2 left-1/2">
+            <div className="fixed bottom-0 w-full px-4 mx-auto -translate-x-1/2 bg-transparent md:w-1/2 left-1/2">
                 <ChatInput ref={ref} onNewMessage={handleNewMessage} onStreamingMessage={setStreamingMessage} />
             </div>
-        </Suspense>
+        </>
     );
 }
