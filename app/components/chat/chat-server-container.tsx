@@ -9,7 +9,7 @@ import { cookies } from "next/headers";
  * @function ChatServerContainer
  **/
 
-export default async function ChatServerContainer(props) {
+export default async function ChatServerContainer() {
     let visitorData = {
         exists: false,
         name: "",
